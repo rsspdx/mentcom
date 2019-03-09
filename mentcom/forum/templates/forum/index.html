@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+        <style>
+            body {
+                padding: 20px;
+                padding-top: 90px;
+            }
+            .topic_title {
+                font-weight: bold;
+            }
+            #topic_entry {
+                padding-bottom: 5px;
+            }
+            .navbar {
+                justify-content: space-around;
+                margin-bottom: 20px;
+            }
+            .nav-item {
+                color: white;
+            }
+            #topic {
+                padding-left: 30px;
+                padding-right: 30px;
+            }
+            /* #posts {
+                display: flex;
+                justify-self: right;
+                padding: 10px;
+                margin-left: 70px; */
+            }
+            #comment_div {
+                display: none;
+                padding-left: 25px;
+            }
+            .posts {
+                padding-top: 5px;
+                padding-left: 25px;
+            }
+            .posts_user {
+                padding-left: 50px;
+            }
+            .posts_date {
+                padding-left: 50px;
+            }
+            .bold {
+                font-weight: bold;
+            }
+            .no_bullet {
+                list-style-type: none;
+            }
+
+            
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="{% url 'forum:index' %}">MentCom forum - The most-read articles from the New York Times</a>
+                </div>
+                <ul class="navbar-nav">
+                    {% if not user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'forum:login' %}">Login or register to post a comment</a>
+                    </li>
+                    {% else%}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'forum:logout' %}">Logout</a>
+                    </li>
+                    {% endif %}
+                </ul>
+        </nav>
+        <div id='"topic"'>
+            {% if topics %}
+                {% for topic in topics %}
+                    <div id="topic_entry">
+                        <h4>{{ topic.title }}</h4>
+                        <div class="small"><a href={{ topic.url }}>{{ topic.url }}</a> </div>
+                        <div class="small"> {{ topic.byline }} </div>
+                        <div class="small"> {{ topic.published_date }} </div>
+                        <div class="small bold"> {{ topic.abstract }} </div>
+                        <div>
+                            <button class="hide_comments_bt small">Hide Comments</button>
+                        </div>
+                        {% if user.is_authenticated %}
+                        <button class="create_comment_bt small">Click to comment (please read article before commenting)</button>
+                        <div id="comment_div"> 
+                        <form action="{% url 'forum:savepost' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="topic_id" value="{{topic.id}}"/>
+                            <textarea class="form-control rounded-0" type="text" name="post_text" title="Post a comment here"></textarea>
+                            <button type="submit">Submit comment</button>
+                        </form>
+
+                        </div>
+                        {% endif %}
+
+                        {% if topic.posts.all %}
+                        <h6>Comments:</h6>
+                        <button class="hide_comments_bt small" style="margin-left:25px">Hide Comments</button>
+
+                        <ul>
+                            {%for post in topic.get_top_level_posts %} 
+                                {%include "forum/tree_template.html" %}
+                            {%endfor%}
+                        </ul>
+
+                        <!-- <div class="posts">
+                            <h6>Comments:</h6>
+                            <button class="hide_comments_bt small" style="margin-left:25px">Hide Comments</button>
+                            
+                                <div>
+                                        {% for post in topic.posts.all %}
+                                            <div class="small posts">{{ post.text }}</div>
+                                            <div class="small posts_user">{{ post.author }}</div>
+                                            <div class="small posts_date">{{ post.date }}</div>
+
+                                    {% if post.author == user %}
+                                    <button class="edit_comment_bt small" style="margin-left:25px">Edit Comment</button> 
+                                    <div style="display:none">
+                                        <form action="{% url 'forum:edit_post' %}" method="post">
+                                            {% csrf_token %}
+                                        <input type="hidden" name="post_id" value="{{post.id}}"/>
+                                        <textarea class="form-control rounded-0 " style="margin-left:25px" type="text" name="edit_text">{{ post.text }}</textarea>
+                                        <button class="submit_edit_bt small" style="margin-left:25px" type="submit">Submit Edit</button>
+                                    </form>
+                                    </div>
+                                    <form action="{% url 'forum:delete_post' %}" method="post">
+                                            {% csrf_token %}
+                                        <input type="hidden" name="post_id" value="{{post.id}}"/>
+                                        <button class="delete_comment small" style="margin-left:25px" type="submit">Delete Comment</button>
+                                    </form>
+                                    {% endif %}
+
+                                        {% endfor %}
+                                </div>
+                        </div> -->
+                        {% endif %}
+                        <hr/>
+                {% endfor %}
+                        </div>
+            {% endif %}
+
+                    </div>
+        </div>
+        <script>
+        $(".create_comment_bt").click(function() {
+            $(this).hide()
+                .next().show()
+        }
+        )
+
+        $(".edit_comment_bt").click(function() {
+            $(this).hide()
+                .next().show()
+        }
+        )
+
+        $(".hide_comments_bt").click(function() {
+            if $(this).text()==="Show Comments") {
+                $(this).text("Hide Comments")
+                .next().show()
+            } else {
+                $(this).text("Show Comments")
+                .next().hide()
+            }
+            })
+    </script>
+    </body>
+</html>

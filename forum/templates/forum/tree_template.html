@@ -1,0 +1,53 @@
+<li>
+    <div class="comments">    
+        <div class="small pad_left_15">{{post.text}}</div>
+        <div class="small pad_left_15">{{post.author}}</div>
+        <div class="small pad_left_15">{{post.date}}</div>
+    </div>
+    
+    <div class="flex-row">
+        {% if user.is_authenticated %}
+            <button class="create_comment_bt small"  title="Add comment" data-id="{{post.id}}">&#43;</button>
+        {% endif %}
+    
+        {% if post.author == user %}
+            <button class="edit_comment_bt small"  title="Edit comment" data-id="{{post.id}}">&#9998;</button> 
+
+            <form action="{% url 'forum:delete_post' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="post_id" value="{{post.id}}"/>
+                <button class="delete_comment small"  title="Delete comment" style="display:flex" type="submit">&#10007;</button>
+            </form>
+        {% endif %}
+    </div>
+    <div>
+        <div id="comment_div_{{post.id}}" class="comment_div"> 
+            <form action="{% url 'forum:savepost' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="post_id" value="{{post.id}}"/>
+                <input type="hidden" name="topic_id" value="{{topic.id}}"/>
+                <textarea class="form-control rounded-0" type="text" name="post_text" title="Post a comment here"></textarea>
+                <button type="submit" class="small">Submit comment</button>
+            </form>
+        </div>
+
+        <div id="edit_div_{{post.id}}" style="display:none">
+            <form action="{% url 'forum:edit_post' %}" method="post">
+                {% csrf_token %}
+            <input type="hidden" name="post_id" value="{{post.id}}"/>
+            <textarea class="form-control rounded-0 " style="margin-left:25px" type="text" name="edit_text">{{ post.text }}</textarea>
+            <button class="submit_edit_bt small" style="display:flex" type="submit">Submit Edit</button>
+            </form>
+        </div>
+    </div>
+
+    {% if post.children.all %}
+        <ul>
+         {% for child in post.children.all %}
+              {% with post=child template_name="forum/tree_template.html" %}
+                   {% include template_name %}
+              {% endwith %}
+         {% endfor %}
+         </ul>
+    {% endif %}
+</li>

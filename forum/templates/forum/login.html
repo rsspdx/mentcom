@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+        <style>
+        body {
+            padding: 20px;
+        }
+        #topic_title {
+            font-style: bold;
+        }
+        #topic_entry {
+            padding-bottom: 5px;
+        }
+        .navbar {
+            justify-content: center;
+        }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href=#>Forum registration page</a>
+                </div>
+                <ul class="navbar-nav">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#">Login or register to post a comment</a>
+                        </li>
+                </ul>
+        </nav>
+        <h3>Already registered? Login:</h3>
+        <form action="{% url 'forum:login_user' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{next}}"/>
+            <input type="text" name="username" required placeholder="username"/>
+            <input type="password" name="password" required placeholder="password"/>
+            <button type="submit">login</button>
+        </form>
+
+        <h3>Not registered? Register here:</h3>
+        <form action="{% url 'forum:register_user' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{next}}"/>
+                <input type="text" name="username" required placeholder="username"/>
+                <input type="text" name="email" required placeholder="email address"/>
+                <input type="password" id="input_password" name="password" required placeholder="password"/>
+                <input type="password" id="input_password_confirm" name="confirm_password" required placeholder="confirm password"/>
+                <button id="bt_submit" type="submit">register</button>
+            </form>
+        </body>
+    </html>
